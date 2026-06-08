@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Ever After — Wedding Planner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#FAF7F2;
+  --blush:#E8C4B8;
+  --blush-deep:#C9967F;
+  --sage:#7A9B76;
+  --sage-light:#B8CEB5;
+  --gold:#C4984A;
+  --navy:#2C3E50;
+  --ink:#1A1A2E;
+  --muted:#8A8A9A;
+  --white:#FFFFFF;
+  --border:#E8E0D8;
+  --danger:#C0392B;
+  --success:#27AE60;
+}
+html,body{height:100%;overflow:hidden;background:#E8E0D8}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:var(--ink)}
+
+#app{display:flex;flex-direction:column;height:100vh;width:100%;max-width:500px;margin:0 auto;background:var(--cream);position:relative;overflow:hidden}
+#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+
+#nav{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);padding-top:8px}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;padding:4px 0 6px;color:var(--muted);font-size:10px;font-family:-apple-system,sans-serif;font-weight:500}
+.nav-btn.active{color:var(--blush-deep)}
+.nav-icon{font-size:22px;line-height:1}
+
+.page-header{padding:20px 20px 14px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.page-title{font-size:26px;font-weight:300;color:var(--ink)}
+.page-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+
+.card{background:var(--white);border-radius:16px;padding:16px;margin:0 16px 12px;box-shadow:0 1px 8px rgba(0,0,0,.07)}
+.card-sm{background:var(--white);border-radius:12px;padding:12px 14px;border:1px solid var(--border)}
+
+.hero-card{background:var(--navy);border-radius:20px;margin:16px;padding:24px;color:white;position:relative;overflow:hidden}
+.hero-circle1{position:absolute;right:-20px;top:-20px;width:140px;height:140px;border:2px solid rgba(255,255,255,.1);border-radius:50%}
+.hero-circle2{position:absolute;right:20px;top:20px;width:80px;height:80px;border:1px solid rgba(255,255,255,.08);border-radius:50%}
+.countdown-num{font-size:64px;font-weight:200;line-height:1;color:white}
+.countdown-label{font-size:11px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.couple-names{font-size:22px;font-weight:300;font-style:italic;opacity:.9;margin-bottom:4px}
+.wedding-date-display{font-size:12px;opacity:.6}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px}
+.stat-card{background:var(--white);border-radius:14px;padding:14px;text-align:center;border:1px solid var(--border)}
+.stat-num{font-size:32px;font-weight:200;color:var(--blush-deep);line-height:1}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;font-weight:500}
+
+.prog-wrap{background:var(--cream);border-radius:999px;height:6px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blush-deep),var(--gold))}
+
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 8px}
+.sec-title{font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.btn-add{background:var(--blush-deep);color:white;border:none;border-radius:999px;padding:7px 16px;font-size:13px;font-family:-apple-system,sans-serif;font-weight:500;cursor:pointer}
+.btn-ghost{background:transparent;color:var(--blush-deep);border:1.5px solid var(--blush-deep);border-radius:999px;padding:6px 14px;font-size:13px;font-family:-apple-system,sans-serif;font-weight:500;cursor:pointer}
+
+.guest-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.guest-row:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:white;font-weight:600;flex-shrink:0}
+.guest-info{flex:1;min-width:0}
+.guest-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.guest-meta{font-size:12px;color:var(--muted);margin-top:1px}
+.rsvp-badge{padding:4px 10px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0}
+.rsvp-attending{background:#EBF5EB;color:#1e7e34}
+.rsvp-declined{background:#FDECEA;color:#a31515}
+.rsvp-pending{background:#FFF8EC;color:#946000}
+
+.budget-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.budget-row:last-child{border-bottom:none}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+.vendor-card{background:var(--white);border-radius:14px;padding:14px;margin:0 16px 10px;border:1px solid var(--border)}
+.vendor-type{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--blush-deep);font-weight:700;margin-bottom:4px}
+.vendor-name{font-size:20px;font-weight:300;color:var(--ink)}
+.vendor-contact{font-size:12px;color:var(--muted);margin-top:4px}
+
+.check-phase{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--blush-deep);font-weight:700;padding:14px 20px 6px}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;background:var(--white);margin:0 16px 6px;border-radius:12px;border:1px solid var(--border);cursor:pointer}
+.check-item.done{opacity:.5}
+.check-box{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;font-size:14px;color:white}
+.check-item.done .check-box{background:var(--sage);border-color:var(--sage)}
+.check-task{flex:1}
+.check-task-text{font-size:14px;line-height:1.35}
+.check-item.done .check-task-text{text-decoration:line-through}
+.priority-chip{font-size:9px;padding:2px 8px;border-radius:999px;font-weight:700;margin-top:5px;display:inline-block;text-transform:uppercase;letter-spacing:.4px}
+.p-vhigh{background:#FDECEA;color:#a31515}
+.p-high{background:#FFF3E0;color:#b25000}
+.p-medium{background:#E8F4FD;color:#0a5288}
+.p-low{background:#F0F0F0;color:#555}
+
+.itin-wrap{padding:8px 16px 0}
+.itin-item{display:flex;gap:12px;margin-bottom:8px;position:relative}
+.itin-item::before{content:'';position:absolute;left:58px;top:22px;bottom:-8px;width:1px;background:var(--border)}
+.itin-item:last-child::before{display:none}
+.time-col{width:52px;flex-shrink:0;padding-top:3px;text-align:right}
+.time-text{font-size:11px;font-weight:500;color:var(--muted)}
+.dot-col{width:14px;flex-shrink:0;display:flex;justify-content:center;padding-top:8px}
+.tdot{width:10px;height:10px;border-radius:50%;background:var(--blush-deep);border:2px solid var(--cream);box-shadow:0 0 0 2px var(--blush);flex-shrink:0}
+.itin-card{flex:1;background:var(--white);border-radius:12px;padding:10px 12px;border:1px solid var(--border)}
+.itin-activity{font-size:14px;font-weight:500}
+.itin-meta{font-size:11px;color:var(--muted);margin-top:3px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px 20px 40px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 18px}
+.modal-title{font-size:24px;font-weight:300;margin-bottom:18px}
+
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px;display:block}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:16px;font-family:-apple-system,sans-serif;color:var(--ink);background:var(--cream);outline:none;-webkit-appearance:none}
+.form-input:focus{border-color:var(--blush-deep)}
+.form-select{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:16px;font-family:-apple-system,sans-serif;color:var(--ink);background:var(--cream);outline:none;-webkit-appearance:none;appearance:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;background:var(--blush-deep);color:white;border:none;border-radius:12px;padding:15px;font-size:16px;font-family:-apple-system,sans-serif;font-weight:600;cursor:pointer;margin-top:10px}
+
+.setup-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;background:var(--cream);text-align:center}
+.setup-logo{font-size:48px;font-weight:200;font-style:italic;color:var(--blush-deep);margin-bottom:8px}
+.setup-tagline{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.5}
+.setup-form{width:100%;max-width:360px}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:44px;margin-bottom:10px}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:4px 6px;flex-shrink:0;line-height:1}
+
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 24px}
+.qa-btn{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;text-align:left}
+.qa-icon{font-size:24px;margin-bottom:6px}
+.qa-label{font-size:13px;font-weight:500;color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="main"></div>
+  <nav id="nav" style="display:none">
+    <button class="nav-btn active" onclick="showTab('dashboard')" id="tab-dashboard"><div class="nav-icon">🌸</div><span>Home</span></button>
+    <button class="nav-btn" onclick="showTab('guests')" id="tab-guests"><div class="nav-icon">💌</div><span>Guests</span></button>
+    <button class="nav-btn" onclick="showTab('budget')" id="tab-budget"><div class="nav-icon">💰</div><span>Budget</span></button>
+    <button class="nav-btn" onclick="showTab('vendors')" id="tab-vendors"><div class="nav-icon">🤝</div><span>Vendors</span></button>
+    <button class="nav-btn" onclick="showTab('checklist')" id="tab-checklist"><div class="nav-icon">✅</div><span>Tasks</span></button>
+    <button class="nav-btn" onclick="showTab('itinerary')" id="tab-itinerary"><div class="nav-icon">📅</div><span>Day-Of</span></button>
+  </nav>
+</div>
+
+<script>
+var state={setup:{bride:'',groom:'',date:'',budget:0,location:''},guests:[],budget:{categories:[]},vendors:[],checklist:[],itinerary:[]};
+var currentTab='dashboard';
+
+var CAT_COLORS=['#E8C4B8','#7A9B76','#C4984A','#2C3E50','#9B7AB8','#78B4C8','#E87A5C','#5CB878','#B8A4C4','#C8B478','#78A4C8','#E8D4A8'];
+var VENDOR_TYPES=['Venue','Caterer','Photographer','Videographer','Florist','DJ','Band','Officiant','Hair Stylist','Makeup Artist','Baker/Cake','Transportation','Planner','Stationery','Other'];
+var PHASES=['12+ Months Before','6-12 Months Before','3-6 Months Before','1-3 Months Before','1 Month Before','2 Weeks Before','1 Week Before'];
+
+var DEFAULT_TASKS=[
+  {phase:'12+ Months Before',task:'Set overall budget',priority:'Very High',done:false},
+  {phase:'12+ Months Before',task:'Choose wedding date',priority:'Very High',done:false},
+  {phase:'12+ Months Before',task:'Book ceremony & reception venue',priority:'High',done:false},
+  {phase:'12+ Months Before',task:'Start guest list draft',priority:'Medium',done:false},
+  {phase:'6-12 Months Before',task:'Book photographer',priority:'High',done:false},
+  {phase:'6-12 Months Before',task:'Book caterer / menu tasting',priority:'High',done:false},
+  {phase:'6-12 Months Before',task:'Book DJ or band',priority:'Medium',done:false},
+  {phase:'6-12 Months Before',task:'Book officiant',priority:'High',done:false},
+  {phase:'6-12 Months Before',task:'Order save-the-dates',priority:'Medium',done:false},
+  {phase:'6-12 Months Before',task:'Start dress shopping',priority:'High',done:false},
+  {phase:'3-6 Months Before',task:'Send invitations',priority:'High',done:false},
+  {phase:'3-6 Months Before',task:'Order wedding cake',priority:'Medium',done:false},
+  {phase:'3-6 Months Before',task:'Buy wedding rings',priority:'Very High',done:false},
+  {phase:'3-6 Months Before',task:'Book hair & makeup',priority:'Medium',done:false},
+  {phase:'1-3 Months Before',task:'Final dress fitting',priority:'High',done:false},
+  {phase:'1-3 Months Before',task:'Confirm all vendor contracts',priority:'Very High',done:false},
+  {phase:'1-3 Months Before',task:'Create seating chart',priority:'High',done:false},
+  {phase:'1-3 Months Before',task:'Write personal vows',priority:'High',done:false},
+  {phase:'1-3 Months Before',task:'Apply for marriage license',priority:'Very High',done:false},
+  {phase:'1 Month Before',task:'Final venue walkthrough',priority:'High',done:false},
+  {phase:'1 Month Before',task:'Prepare tips & payments for vendors',priority:'High',done:false},
+  {phase:'1 Month Before',task:'Pick up marriage license',priority:'Very High',done:false},
+  {phase:'2 Weeks Before',task:'Confirm all RSVPs',priority:'High',done:false},
+  {phase:'2 Weeks Before',task:'Create final seating chart',priority:'High',done:false},
+  {phase:'1 Week Before',task:'Rehearsal & rehearsal dinner',priority:'Very High',done:false},
+  {phase:'1 Week Before',task:'Pack wedding day bag',priority:'High',done:false}
+];
+
+var DEFAULT_ITINERARY=[
+  {startTime:'7:00 AM',endTime:'8:30 AM',activity:'Bridal party arrives & hair/makeup begins',location:'Bridal Suite',person:'Hair Stylist',notes:''},
+  {startTime:'8:30 AM',endTime:'9:30 AM',activity:'Bride hair & makeup',location:'Bridal Suite',person:'Hair Stylist',notes:''},
+  {startTime:'10:30 AM',endTime:'11:00 AM',activity:'Groom & groomsmen arrive',location:'Groom Suite',person:'Best Man',notes:''},
+  {startTime:'11:00 AM',endTime:'11:15 AM',activity:'First Look',location:'Garden',person:'Photographer',notes:'Private moment'},
+  {startTime:'11:15 AM',endTime:'12:30 PM',activity:'Couple & bridal party portraits',location:'Venue grounds',person:'Photographer',notes:''},
+  {startTime:'2:00 PM',endTime:'2:15 PM',activity:'Guests begin arriving',location:'Ceremony',person:'Ushers',notes:'Programs distributed'},
+  {startTime:'2:30 PM',endTime:'3:10 PM',activity:'CEREMONY',location:'Ceremony',person:'Officiant',notes:'Vows, rings, readings'},
+  {startTime:'3:15 PM',endTime:'4:30 PM',activity:'Cocktail hour',location:'Terrace',person:'Caterer / DJ',notes:'Appetizers & drinks'},
+  {startTime:'4:45 PM',endTime:'5:00 PM',activity:'Grand entrance of wedding party',location:'Reception Hall',person:'DJ',notes:''},
+  {startTime:'5:00 PM',endTime:'5:15 PM',activity:'First dance',location:'Dance Floor',person:'DJ',notes:''},
+  {startTime:'5:30 PM',endTime:'6:30 PM',activity:'Dinner service',location:'Reception Hall',person:'Caterer',notes:''},
+  {startTime:'7:15 PM',endTime:'7:30 PM',activity:'Cake cutting',location:'Reception Hall',person:'Caterer',notes:'Photo opportunity'},
+  {startTime:'7:30 PM',endTime:'9:30 PM',activity:'Open dancing',location:'Dance Floor',person:'DJ',notes:''},
+  {startTime:'9:45 PM',endTime:'10:00 PM',activity:'Last dance & sparkler send-off',location:'Venue entrance',person:'Planner',notes:''}
+];
+
+var DEFAULT_CATS=[
+  {name:'Venue & Rentals',budgeted:0,paid:0},{name:'Catering & Bar',budgeted:0,paid:0},
+  {name:'Photography',budgeted:0,paid:0},{name:'Flowers & Decor',budgeted:0,paid:0},
+  {name:'Music & Entertainment',budgeted:0,paid:0},{name:'Attire & Beauty',budgeted:0,paid:0},
+  {name:'Stationery',budgeted:0,paid:0},{name:'Transportation',budgeted:0,paid:0},
+  {name:'Cake & Desserts',budgeted:0,paid:0},{name:'Honeymoon',budgeted:0,paid:0},
+  {name:'Rings & Jewelry',budgeted:0,paid:0},{name:'Miscellaneous',budgeted:0,paid:0}
+];
+
+function save(){try{localStorage.setItem('ea_v2',JSON.stringify(state));}catch(e){}}
+
+function load(){
+  try{
+    var d=localStorage.getItem('ea_v2');
+    if(d){state=JSON.parse(d);return true;}
+  }catch(e){}
+  return false;
+}
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmt(n){return '$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function initials(n){return(n||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase()||'?';}
+function daysUntil(ds){if(!ds)return null;var d=new Date(ds+'T00:00:00'),now=new Date();now.setHours(0,0,0,0);return Math.ceil((d-now)/86400000);}
+function fmtDate(ds){if(!ds)return'';var d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function acolor(n){var c=['linear-gradient(135deg,#E8C4B8,#C9967F)','linear-gradient(135deg,#7A9B76,#5C7A58)','linear-gradient(135deg,#C4984A,#A07830)','linear-gradient(135deg,#78A4C8,#5080A0)'];return c[((n||'').charCodeAt(0)||0)%c.length];}
+function el(id){return document.getElementById(id);}
+function setHTML(id,html){el(id).innerHTML=html;}
+
+function init(){
+  var hasData=load();
+  if(!hasData||(!state.setup.bride&&!state.setup.groom)){
+    if(!state.budget.categories.length)state.budget.categories=DEFAULT_CATS.map(function(c,i){return Object.assign({},c,{id:i+1,color:CAT_COLORS[i]});});
+    if(!state.checklist.length)state.checklist=DEFAULT_TASKS.map(function(t,i){return Object.assign({},t,{id:'t'+i});});
+    if(!state.itinerary.length)state.itinerary=DEFAULT_ITINERARY.map(function(t,i){return Object.assign({},t,{id:'i'+i});});
+    renderSetup();
+  }else{
+    el('nav').style.display='flex';
+    render();
+  }
+}
+
+function render(){
+  var map={dashboard:renderDashboard,guests:renderGuests,budget:renderBudget,vendors:renderVendors,checklist:renderChecklist,itinerary:renderItinerary};
+  (map[currentTab]||renderDashboard)();
+}
+
+function showTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  var t=el('tab-'+tab);if(t)t.classList.add('active');
+  closeModal();render();
+}
+
+function renderSetup(){
+  el('nav').style.display='none';
+  setHTML('main','<div class="setup-screen"><div class="setup-logo">ever after</div><div class="setup-tagline">Your personal wedding planning companion</div><div class="setup-form"><div class="form-group"><label class="form-label">Bride\'s Name</label><input class="form-input" id="s-bride" placeholder="Enter bride\'s name" autocomplete="off"></div><div class="form-group"><label class="form-label">Groom\'s Name</label><input class="form-input" id="s-groom" placeholder="Enter groom\'s name" autocomplete="off"></div><div class="form-group"><label class="form-label">Wedding Date</label><input class="form-input" id="s-date" type="date"></div><div class="form-group"><label class="form-label">Venue / Location</label><input class="form-input" id="s-loc" placeholder="e.g. New York, NY" autocomplete="off"></div><div class="form-group"><label class="form-label">Total Budget</label><input class="form-input" id="s-budget" type="number" placeholder="e.g. 25000" inputmode="numeric"></div><button class="btn-primary" onclick="saveSetup()">Begin Planning 🌸</button></div></div>');
+}
+
+function saveSetup(){
+  var bride=el('s-bride').value.trim(),groom=el('s-groom').value.trim();
+  if(!bride||!groom){alert('Please enter both names');return;}
+  state.setup={bride:bride,groom:groom,date:el('s-date').value,location:el('s-loc').value.trim(),budget:parseFloat(el('s-budget').value)||0};
+  save();el('nav').style.display='flex';showTab('dashboard');
+}
+
+function renderDashboard(){
+  var days=daysUntil(state.setup.date);
+  var att=state.guests.filter(function(g){return g.rsvp==='Attending';}).length;
+  var tb=state.budget.categories.reduce(function(a,c){return a+Number(c.budgeted||0);},0)||state.setup.budget||0;
+  var tp=state.budget.categories.reduce(function(a,c){return a+Number(c.paid||0);},0);
+  var pp=tb?Math.round(tp/tb*100):0;
+  var done=state.checklist.filter(function(t){return t.done;}).length;
+  var tkp=state.checklist.length?Math.round(done/state.checklist.length*100):0;
+  setHTML('main','<div class="page-header"><div class="page-title">🌸 ever after</div><div class="page-subtitle">Your wedding at a glance</div></div><div class="hero-card"><div class="hero-circle1"></div><div class="hero-circle2"></div><div class="couple-names">'+esc(state.setup.bride)+' & '+esc(state.setup.groom)+'</div><div class="wedding-date-display">'+fmtDate(state.setup.date)+(state.setup.location?' &bull; '+esc(state.setup.location):'')+'</div><div style="margin-top:20px;display:flex;align-items:flex-end;gap:8px"><div class="countdown-num">'+(days!==null?Math.max(0,days):'—')+'</div><div><div class="countdown-label">days to go</div>'+(days===0?'<div style="color:#FFD700;font-size:12px;margin-top:2px">Today is the day!</div>':'')+(days!==null&&days<0?'<div style="opacity:.7;font-size:11px;margin-top:2px">Congratulations!</div>':'')+'</div></div></div><div class="stats-grid"><div class="stat-card"><div class="stat-num">'+att+'</div><div class="stat-label">Attending / '+state.guests.length+' invited</div></div><div class="stat-card"><div class="stat-num">'+state.vendors.length+'</div><div class="stat-label">Vendors booked</div></div></div><div class="card"><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px">Budget</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><div style="font-size:24px;font-weight:300">'+fmt(tp)+' <span style="font-size:13px;color:var(--muted)">paid</span></div><div style="font-size:13px;color:var(--muted)">of '+fmt(tb)+'</div></div><div class="prog-wrap"><div class="prog-fill" style="width:'+pp+'%"></div></div><div style="font-size:11px;color:var(--muted);margin-top:5px">'+pp+'% of budget used</div></div><div class="card"><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px">Planning Progress</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><div style="font-size:14px;font-weight:500">'+done+' of '+state.checklist.length+' tasks done</div><div style="font-size:13px;color:var(--sage);font-weight:600">'+tkp+'%</div></div><div class="prog-wrap"><div class="prog-fill" style="width:'+tkp+'%;background:linear-gradient(90deg,var(--sage),var(--sage-light))"></div></div></div><div class="sec-head"><span class="sec-title">Quick Actions</span></div><div class="qa-grid"><button class="qa-btn" onclick="showModal(\'addGuest\')"><div class="qa-icon">💌</div><div class="qa-label">Add Guest</div></button><button class="qa-btn" onclick="showModal(\'addVendor\')"><div class="qa-icon">🤝</div><div class="qa-label">Add Vendor</div></button><button class="qa-btn" onclick="showModal(\'editBudget\')"><div class="qa-icon">💰</div><div class="qa-label">Update Budget</div></button><button class="qa-btn" onclick="showTab(\'checklist\')"><div class="qa-icon">✅</div><div class="qa-label">View Tasks</div></button></div><div style="margin:0 16px 12px"><div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px;padding-top:4px">Your Data</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button onclick="exportData()" style="background:var(--white);border:1.5px solid var(--blush-deep);border-radius:14px;padding:14px;cursor:pointer;text-align:left"><div style="font-size:22px;margin-bottom:6px">📤</div><div style="font-size:13px;font-weight:500;color:var(--blush-deep)">Export Data</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Save a backup file</div></button><button onclick="triggerImport()" style="background:var(--white);border:1.5px solid var(--sage);border-radius:14px;padding:14px;cursor:pointer;text-align:left"><div style="font-size:22px;margin-bottom:6px">📥</div><div style="font-size:13px;font-weight:500;color:var(--sage)">Import Data</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Restore from backup</div></button></div></div><div style="text-align:center;padding-bottom:20px"><button onclick="showModal(\'editSetup\')" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:-apple-system,sans-serif">⚙️ Edit wedding details</button></div>');
+}
+
+function renderGuests(){
+  var att=state.guests.filter(function(g){return g.rsvp==='Attending';}).length;
+  var dec=state.guests.filter(function(g){return g.rsvp==='Declined';}).length;
+  var pen=state.guests.length-att-dec;
+  var rows=state.guests.map(function(g){
+    var cls=g.rsvp==='Attending'?'rsvp-attending':g.rsvp==='Declined'?'rsvp-declined':'rsvp-pending';
+    var lbl=g.rsvp||'Pending';
+    return '<div class="guest-row"><div class="avatar" style="background:'+acolor(g.name)+'">'+esc(initials(g.name))+'</div><div class="guest-info"><div class="guest-name">'+esc(g.name)+'</div><div class="guest-meta">'+(g.tag?esc(g.tag):'')+((g.tag&&g.meal)?' · ':'')+esc(g.meal||'')+'</div></div><span class="rsvp-badge '+cls+'">'+lbl+'</span><button class="del-btn" onclick="delGuest(\''+g.id+'\')">×</button></div>';
+  }).join('');
+  setHTML('main','<div class="page-header"><div class="page-title">Guest List</div><div class="page-subtitle">'+state.guests.length+' invited &bull; '+att+' attending &bull; '+pen+' pending</div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 16px"><div class="card-sm" style="text-align:center"><div style="font-size:24px;font-weight:300;color:var(--sage)">'+att+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Attending</div></div><div class="card-sm" style="text-align:center"><div style="font-size:24px;font-weight:300;color:var(--gold)">'+pen+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Pending</div></div><div class="card-sm" style="text-align:center"><div style="font-size:24px;font-weight:300;color:var(--danger)">'+dec+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Declined</div></div></div><div class="sec-head"><span class="sec-title">All Guests</span><button class="btn-add" onclick="showModal(\'addGuest\')">+ Add</button></div><div class="card" style="padding:4px 16px">'+(state.guests.length?rows:'<div class="empty-state"><div class="empty-icon">💌</div><div>No guests yet</div></div>')+'</div>');
+}
+function delGuest(id){if(!confirm('Remove this guest?'))return;state.guests=state.guests.filter(function(g){return g.id!==id;});save();renderGuests();}
+
+function renderBudget(){
+  var total=Number(state.setup.budget||0);
+  var budgeted=state.budget.categories.reduce(function(a,c){return a+Number(c.budgeted||0);},0);
+  var paid=state.budget.categories.reduce(function(a,c){return a+Number(c.paid||0);},0);
+  var rows=state.budget.categories.map(function(c){
+    var pct=c.budgeted?Math.min(100,Math.round(c.paid/c.budgeted*100)):0;
+    return '<div class="budget-row"><div class="cat-dot" style="background:'+c.color+'"></div><div style="flex:1;font-size:14px">'+esc(c.name)+'</div><div><div style="margin-bottom:4px"><div class="prog-wrap" style="width:70px"><div class="prog-fill" style="width:'+pct+'%;background:'+c.color+'"></div></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500">'+fmt(c.paid)+'</div><div style="font-size:11px;color:var(--muted)">of '+fmt(c.budgeted)+'</div></div></div></div>';
+  }).join('');
+  setHTML('main','<div class="page-header"><div class="page-title">Budget</div><div class="page-subtitle">Total: '+fmt(total)+'</div></div><div class="card" style="padding:16px"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-radius:12px;overflow:hidden;border:1px solid var(--border)"><div style="padding:14px;background:var(--cream);text-align:center"><div style="font-size:20px;font-weight:300">'+fmt(paid)+'</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px">Paid</div></div><div style="padding:14px;background:var(--white);border-left:1px solid var(--border);border-right:1px solid var(--border);text-align:center"><div style="font-size:20px;font-weight:300;color:var(--gold)">'+fmt(budgeted-paid)+'</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px">Committed</div></div><div style="padding:14px;background:var(--cream);text-align:center"><div style="font-size:20px;font-weight:300;color:var(--sage)">'+fmt(total-paid)+'</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px">Available</div></div></div></div><div class="sec-head"><span class="sec-title">Categories</span><button class="btn-ghost" onclick="showModal(\'editBudget\')">Edit</button></div><div class="card" style="padding:4px 16px">'+rows+'</div>');
+}
+
+function renderVendors(){
+  var cards=state.vendors.map(function(v){
+    var pct=v.contractPrice?Math.round(v.amountPaid/v.contractPrice*100):0;
+    return '<div class="vendor-card"><div class="vendor-type">'+esc(v.type)+'</div><div class="vendor-name">'+esc(v.name)+'</div>'+(v.contact?'<div class="vendor-contact">👤 '+esc(v.contact)+'</div>':'')+(v.phone?'<div class="vendor-contact">📞 '+esc(v.phone)+'</div>':'')+(v.email?'<div class="vendor-contact">✉️ '+esc(v.email)+'</div>':'')+(v.contractPrice?'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div><div style="font-size:11px;color:var(--muted)">Contract: '+fmt(v.contractPrice)+'</div><div class="prog-wrap" style="width:90px;margin-top:4px"><div class="prog-fill" style="width:'+pct+'%"></div></div></div><div style="text-align:right"><div style="font-size:13px;font-weight:500;color:var(--sage)">'+fmt(v.amountPaid)+' paid</div><div style="font-size:11px;color:var(--muted)">'+fmt(v.contractPrice-v.amountPaid)+' left</div></div></div>':'')+(v.notes?'<div style="font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'+esc(v.notes)+'</div>':'')+'<div style="text-align:right;margin-top:10px"><button class="del-btn" onclick="delVendor(\''+v.id+'\')">Remove ×</button></div></div>';
+  }).join('');
+  setHTML('main','<div class="page-header"><div class="page-title">Vendors</div><div class="page-subtitle">'+state.vendors.length+' vendor'+(state.vendors.length!==1?'s':'')+' booked</div></div><div class="sec-head"><span class="sec-title">All Vendors</span><button class="btn-add" onclick="showModal(\'addVendor\')">+ Add</button></div>'+(state.vendors.length?cards:'<div class="empty-state"><div class="empty-icon">🤝</div><div>No vendors yet</div></div>'));
+}
+function delVendor(id){if(!confirm('Remove this vendor?'))return;state.vendors=state.vendors.filter(function(v){return v.id!==id;});save();renderVendors();}
+
+function renderChecklist(){
+  var done=state.checklist.filter(function(t){return t.done;}).length;
+  var sections=PHASES.map(function(phase){
+    var tasks=state.checklist.filter(function(t){return t.phase===phase;});
+    if(!tasks.length)return'';
+    var items=tasks.map(function(t){
+      var pc=t.priority==='Very High'?'p-vhigh':t.priority==='High'?'p-high':t.priority==='Medium'?'p-medium':'p-low';
+      return'<div class="check-item'+(t.done?' done':'')+'" onclick="toggleTask(\''+t.id+'\')"><div class="check-box">'+(t.done?'✓':'')+'</div><div class="check-task"><div class="check-task-text">'+esc(t.task)+'</div><span class="priority-chip '+pc+'">'+t.priority+'</span></div><button class="del-btn" onclick="event.stopPropagation();delTask(\''+t.id+'\')">×</button></div>';
+    }).join('');
+    return'<div class="check-phase">'+phase+'</div>'+items;
+  }).join('');
+  setHTML('main','<div class="page-header"><div class="page-title">Tasks</div><div class="page-subtitle">'+done+' of '+state.checklist.length+' completed</div></div><div style="padding:0 16px 8px"><div class="prog-wrap" style="height:8px"><div class="prog-fill" style="width:'+(state.checklist.length?Math.round(done/state.checklist.length*100):0)+'%"></div></div></div><div class="sec-head"><span class="sec-title">Checklist</span><button class="btn-add" onclick="showModal(\'addTask\')">+ Add</button></div>'+sections+'<div style="height:16px"></div>');
+}
+function toggleTask(id){var t=state.checklist.filter(function(x){return x.id==id;})[0];if(t){t.done=!t.done;save();renderChecklist();}}
+function delTask(id){state.checklist=state.checklist.filter(function(t){return t.id!=id;});save();renderChecklist();}
+
+function renderItinerary(){
+  var sorted=state.itinerary.slice().sort(function(a,b){return a.startTime.localeCompare(b.startTime);});
+  var items=sorted.map(function(item){
+    return'<div class="itin-item"><div class="time-col"><div class="time-text">'+esc(item.startTime)+'</div>'+(item.endTime?'<div class="time-text" style="opacity:.5">'+esc(item.endTime)+'</div>':'')+'</div><div class="dot-col"><div class="tdot"></div></div><div class="itin-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="itin-activity">'+esc(item.activity)+'</div><button class="del-btn" onclick="delItin(\''+item.id+'\')">×</button></div><div class="itin-meta">'+(item.location?'📍 '+esc(item.location)+'  ':'')+(item.person?'👤 '+esc(item.person):'')+'</div>'+(item.notes?'<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic">'+esc(item.notes)+'</div>':'')+'</div></div>';
+  }).join('');
+  setHTML('main','<div class="page-header"><div class="page-title">Day-Of Schedule</div><div class="page-subtitle">'+fmtDate(state.setup.date)+'</div></div><div class="sec-head"><span class="sec-title">Timeline</span><button class="btn-add" onclick="showModal(\'addItinerary\')">+ Add</button></div><div class="itin-wrap">'+items+'</div><div style="height:24px"></div>');
+}
+function delItin(id){if(!confirm('Remove this item?'))return;state.itinerary=state.itinerary.filter(function(i){return i.id!=id;});save();renderItinerary();}
+
+function showModal(type){
+  closeModal();
+  var ov=document.createElement('div');
+  ov.className='modal-overlay';ov.id='modal-ov';
+  ov.innerHTML=getModal(type);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  document.body.appendChild(ov);
+}
+function closeModal(){var m=el('modal-ov');if(m)m.remove();}
+
+function getModal(type){
+  if(type==='addGuest')return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Add Guest</div><div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="m-name" placeholder="Guest name" autocomplete="off"></div><div class="form-row"><div class="form-group"><label class="form-label">Tag</label><select class="form-select" id="m-tag"><option value="">Select...</option><option>Bride Family</option><option>Groom Family</option><option>Friend</option><option>Coworker</option><option>Relative</option><option>VIP</option><option>Plus One</option><option>Child</option></select></div><div class="form-group"><label class="form-label">RSVP</label><select class="form-select" id="m-rsvp"><option value="">Pending</option><option>Attending</option><option>Declined</option></select></div></div><div class="form-group"><label class="form-label">Meal Preference</label><select class="form-select" id="m-meal"><option value="">No preference</option><option>Chicken</option><option>Beef</option><option>Fish</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-Free</option></select></div><div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="m-email" type="email" placeholder="Optional"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="m-phone" type="tel" placeholder="Optional"></div></div><button class="btn-primary" onclick="saveGuest()">Add Guest</button></div>';
+
+  if(type==='addVendor')return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Add Vendor</div><div class="form-group"><label class="form-label">Type *</label><select class="form-select" id="m-vtype">'+VENDOR_TYPES.map(function(t){return'<option>'+t+'</option>';}).join('')+'</select></div><div class="form-group"><label class="form-label">Business Name *</label><input class="form-input" id="m-vname" placeholder="Vendor name" autocomplete="off"></div><div class="form-row"><div class="form-group"><label class="form-label">Contact Person</label><input class="form-input" id="m-vcontact" placeholder="Name" autocomplete="off"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="m-vphone" type="tel" placeholder="Phone"></div></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="m-vemail" type="email" placeholder="Email"></div><div class="form-row"><div class="form-group"><label class="form-label">Contract Price $</label><input class="form-input" id="m-vprice" type="number" inputmode="numeric" placeholder="0"></div><div class="form-group"><label class="form-label">Amount Paid $</label><input class="form-input" id="m-vpaid" type="number" inputmode="numeric" placeholder="0"></div></div><div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="m-vnotes" placeholder="Details..." autocomplete="off"></div><button class="btn-primary" onclick="saveVendor()">Add Vendor</button></div>';
+
+  if(type==='editBudget'){
+    var cats=state.budget.categories.map(function(c,i){return'<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:10px;height:10px;border-radius:50%;background:'+c.color+';flex-shrink:0"></div><div style="font-size:13px">'+esc(c.name)+'</div></div><div class="form-row"><div><label class="form-label" style="font-size:9px">Budget $</label><input class="form-input" id="m-cb-'+i+'" type="number" inputmode="numeric" value="'+(c.budgeted||0)+'" style="font-size:15px;padding:9px 10px"></div><div><label class="form-label" style="font-size:9px">Paid $</label><input class="form-input" id="m-cp-'+i+'" type="number" inputmode="numeric" value="'+(c.paid||0)+'" style="font-size:15px;padding:9px 10px"></div></div></div>';}).join('');
+    return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Update Budget</div><div class="form-group"><label class="form-label">Total Wedding Budget</label><input class="form-input" id="m-total" type="number" inputmode="numeric" value="'+(state.setup.budget||0)+'"></div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:14px 0 10px">By Category</div>'+cats+'<button class="btn-primary" onclick="saveBudget()">Save Budget</button></div>';
+  }
+
+  if(type==='addTask')return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Add Task</div><div class="form-group"><label class="form-label">Task *</label><input class="form-input" id="m-task" placeholder="What needs to be done?" autocomplete="off"></div><div class="form-row"><div class="form-group"><label class="form-label">Phase</label><select class="form-select" id="m-phase">'+PHASES.map(function(p){return'<option>'+p+'</option>';}).join('')+'</select></div><div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="m-priority"><option>Very High</option><option>High</option><option>Medium</option><option>Low</option></select></div></div><button class="btn-primary" onclick="saveTask()">Add Task</button></div>';
+
+  if(type==='addItinerary')return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Add Schedule Item</div><div class="form-row"><div class="form-group"><label class="form-label">Start Time *</label><input class="form-input" id="m-start" placeholder="e.g. 2:30 PM" autocomplete="off"></div><div class="form-group"><label class="form-label">End Time</label><input class="form-input" id="m-end" placeholder="e.g. 3:10 PM" autocomplete="off"></div></div><div class="form-group"><label class="form-label">Activity *</label><input class="form-input" id="m-activity" placeholder="What\'s happening?" autocomplete="off"></div><div class="form-row"><div class="form-group"><label class="form-label">Location</label><input class="form-input" id="m-iloc" placeholder="Where?" autocomplete="off"></div><div class="form-group"><label class="form-label">Person in Charge</label><input class="form-input" id="m-iperson" placeholder="Who?" autocomplete="off"></div></div><div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="m-inotes" placeholder="Any details..." autocomplete="off"></div><button class="btn-primary" onclick="saveItinerary()">Add to Schedule</button></div>';
+
+  if(type==='editSetup')return'<div class="modal"><div class="modal-handle"></div><div class="modal-title">Wedding Details</div><div class="form-group"><label class="form-label">Bride\'s Name</label><input class="form-input" id="es-bride" value="'+esc(state.setup.bride)+'"></div><div class="form-group"><label class="form-label">Groom\'s Name</label><input class="form-input" id="es-groom" value="'+esc(state.setup.groom)+'"></div><div class="form-group"><label class="form-label">Wedding Date</label><input class="form-input" id="es-date" type="date" value="'+state.setup.date+'"></div><div class="form-group"><label class="form-label">Location</label><input class="form-input" id="es-loc" value="'+esc(state.setup.location)+'"></div><div class="form-group"><label class="form-label">Total Budget $</label><input class="form-input" id="es-budget" type="number" inputmode="numeric" value="'+(state.setup.budget||0)+'"></div><button class="btn-primary" onclick="saveEditSetup()">Save Changes</button></div>';
+  return'';
+}
+
+function saveGuest(){var n=el('m-name').value.trim();if(!n){alert('Please enter a name');return;}state.guests.push({id:uid(),name:n,tag:el('m-tag').value,rsvp:el('m-rsvp').value||'',meal:el('m-meal').value,email:el('m-email').value,phone:el('m-phone').value});save();closeModal();renderGuests();}
+function saveVendor(){var n=el('m-vname').value.trim();if(!n){alert('Please enter a vendor name');return;}state.vendors.push({id:uid(),type:el('m-vtype').value,name:n,contact:el('m-vcontact').value,phone:el('m-vphone').value,email:el('m-vemail').value,contractPrice:parseFloat(el('m-vprice').value)||0,amountPaid:parseFloat(el('m-vpaid').value)||0,notes:el('m-vnotes').value});save();closeModal();renderVendors();}
+function saveBudget(){state.setup.budget=parseFloat(el('m-total').value)||0;state.budget.categories.forEach(function(c,i){c.budgeted=parseFloat(el('m-cb-'+i).value)||0;c.paid=parseFloat(el('m-cp-'+i).value)||0;});save();closeModal();renderBudget();}
+function saveTask(){var t=el('m-task').value.trim();if(!t){alert('Please enter a task');return;}state.checklist.push({id:uid(),task:t,phase:el('m-phase').value,priority:el('m-priority').value,done:false});save();closeModal();renderChecklist();}
+function saveItinerary(){var s=el('m-start').value.trim(),a=el('m-activity').value.trim();if(!s||!a){alert('Start time and activity required');return;}state.itinerary.push({id:uid(),startTime:s,endTime:el('m-end').value,activity:a,location:el('m-iloc').value,person:el('m-iperson').value,notes:el('m-inotes').value});save();closeModal();renderItinerary();}
+function saveEditSetup(){state.setup.bride=el('es-bride').value.trim();state.setup.groom=el('es-groom').value.trim();state.setup.date=el('es-date').value;state.setup.location=el('es-loc').value.trim();state.setup.budget=parseFloat(el('es-budget').value)||0;save();closeModal();renderDashboard();}
+
+// ── EXPORT ────────────────────────────────────────────────────────
+function exportData(){
+  try{
+    var exportObj={
+      version:'3.0',
+      exportDate:new Date().toISOString(),
+      coupleNames:state.setup.bride+' & '+state.setup.groom,
+      data:state
+    };
+    var json=JSON.stringify(exportObj,null,2);
+    var blob=new Blob([json],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var bride=(state.setup.bride||'EverAfter').replace(/\s+/g,'_');
+    var groom=(state.setup.groom||'Planner').replace(/\s+/g,'_');
+    var dateStr=new Date().toISOString().slice(0,10);
+    var filename=bride+'_'+groom+'_WeddingPlanner_'+dateStr+'.json';
+    var a=document.createElement('a');
+    a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    closeModal();
+    alert('✅ Your data has been exported!\n\nSave this file somewhere safe. When you get a new version of the app, use Import Data to restore everything.');
+  }catch(e){
+    alert('Export failed: '+e.message);
+  }
+}
+
+// ── IMPORT ────────────────────────────────────────────────────────
+function triggerImport(){
+  var input=document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange=function(e){
+    var file=e.target.files[0];
+    if(!file){return;}
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var parsed=JSON.parse(ev.target.result);
+        // Support both wrapped format and raw state
+        var imported=parsed.data||parsed;
+        // Validate it looks like our data
+        if(!imported.setup||!imported.guests||!imported.budget){
+          alert('❌ This file does not look like a valid Ever After backup.\nPlease use a file exported from this app.');
+          return;
+        }
+        if(!confirm('Import data for '+
+          (imported.setup.bride||'?')+' & '+(imported.setup.groom||'?')+'?\n\n'+
+          '• '+imported.guests.length+' guests\n'+
+          '• '+imported.vendors.length+' vendors\n'+
+          '• '+imported.checklist.length+' tasks\n'+
+          '• '+imported.itinerary.length+' day-of items\n\n'+
+          'This will REPLACE your current data.')){return;}
+        state=imported;
+        // Make sure new state fields exist if importing from older version
+        if(!state.budget.categories)state.budget.categories=[];
+        if(!state.checklist)state.checklist=[];
+        if(!state.itinerary)state.itinerary=[];
+        if(!state.vendors)state.vendors=[];
+        if(!state.guests)state.guests=[];
+        save();
+        closeModal();
+        showTab('dashboard');
+        alert('✅ Import successful! Welcome back, '+state.setup.bride+' & '+state.setup.groom+'!');
+      }catch(err){
+        alert('❌ Could not read file.\nMake sure it is a valid Ever After export file.\n\nError: '+err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
+init();
+</script>
+</body>
+</html>
